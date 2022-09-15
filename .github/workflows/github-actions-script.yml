@@ -2,6 +2,7 @@ name: GitHub Actions Demo
 on:
   repository_dispatch:
     types: render-cv
+  [push]
 
 jobs:
   Explore-GitHub-Actions:
