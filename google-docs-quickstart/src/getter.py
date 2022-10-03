@@ -11,7 +11,9 @@ from google.oauth2 import service_account
 class Getter:
     SCOPES = ['https://www.googleapis.com/auth/documents.readonly']
 
-    def __init__(self, credentials_filepath: str = 'credentials.json', doc_id_filepath: str = 'document_id.json'):
+    def __init__(self,
+                 credentials_filepath: str = 'configs/credentials.json',
+                 doc_id_filepath: str = 'configs/document_id.json'):
         if not os.path.isfile(doc_id_filepath):
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), doc_id_filepath)
 
