@@ -21,6 +21,7 @@ jobs:
       run: |
          cd $ETL_FOLDER
          docker build -t gdocs .
+         cd ..
       shell: bash
 
     - name: Pull Image
@@ -33,8 +34,16 @@ jobs:
         docker images
       shell: bash
 
+    - name: Write Config files
+      run: |
+        cd $ETL_FOLDER
+        mkdir configs
+        echo "${{ secrets.CREDENTIALS }}" >> configs/credentials.json
+        echo "${{ secrets.DOCUMENT_ID }}" >> configs/document_id.json
+      shell: bash
+
     - name: Download Google Docs Document
       run: |
         docker run --name etl_python --rm -i -t -w "/app" -v "$PWD":/app gdocs python3 $ETL_FOLDER/main.py
-      shell: bask
+      shell: bash
 
