@@ -23,7 +23,7 @@ jobs:
       with:
         name: "credentials.json"
         json: ${{ secrets.CREDENTIALS }}
-        dir: '${{ ETL_FOLDER }}/configs/'
+        dir: '${{ env.ETL_FOLDER }}/configs/'
 
     - name: Update DOCUMENT_ID Config file
       id: create-json-2 
@@ -31,7 +31,7 @@ jobs:
       with:
         name: "document_id.json"
         json: ${{ secrets.DOCUMENT_ID }}
-        dir: '${{ ETL_FOLDER }}/configs/'
+        dir: '${{ env.ETL_FOLDER }}/configs/'
           
     - name: Build image
       run: |
