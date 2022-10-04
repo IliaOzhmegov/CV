@@ -33,31 +33,28 @@ class Getter:
         creds = self.__creds
         doc_id = self.__doc_id
 
-        try:
-            service = build('docs', 'v1', credentials=creds)
+        service = build('docs', 'v1', credentials=creds)
 
-            # Retrieve the documents contents from the Docs service.
-            document = service.documents().get(documentId=doc_id).execute()
+        # Retrieve the documents contents from the Docs service.
+        document = service.documents().get(documentId=doc_id).execute()
 
-            print('Document downloaded successfully!')
-            print(f'The title of the document is: {document.get("title")}')
+        print('Document downloaded successfully!')
+        print(f'The title of the document is: {document.get("title")}')
 
-            doc_content = document.get('body').get('content')
+        doc_content = document.get('body').get('content')
 
-            if saveto:
-                # save file as is
-                with open(saveto + '.pkl', 'wb') as pkl_f:
-                    dill.dump(doc_content, pkl_f)
+        if saveto:
+            # save file as is
+            with open(saveto + '.pkl', 'wb') as pkl_f:
+                dill.dump(doc_content, pkl_f)
 
-                with open(saveto + '.json', 'w') as f:
-                    f.write(json.dumps(doc_content, indent=4))
+            with open(saveto + '.json', 'w') as f:
+                f.write(json.dumps(doc_content, indent=4))
 
-                print(f'Document saved successfully as {saveto + ".json"}!')
+            print(f'Document saved successfully as {saveto + ".json"}!')
 
-            return doc_content
+        return doc_content
 
-        except HttpError as err:
-            print(err)
 
 
 def main():
