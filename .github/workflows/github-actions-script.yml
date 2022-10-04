@@ -17,15 +17,22 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Update Config files
-      run: |
-        cd $ETL_FOLDER
-        mkdir -p configs
-        echo "${{ secrets.CREDENTIALS }}" > configs/credentials.json
-        echo "${{ secrets.DOCUMENT_ID }}" > configs/document_id.json
-        cd ..
-      shell: bash
+    - name: Update CREDENTIALS Config file
+      id: create-json-1
+      uses: jsdaniell/create-json@1.1.2
+      with:
+        name: "credentials.json"
+        json: ${{ secrets.CREDENTIALS }}
+        dir: '$ETL_FOLDER/configs/'
 
+    - name: Update DOCUMENT_ID Config file
+      id: create-json-2 
+      uses: jsdaniell/create-json@1.1.2
+      with:
+        name: "document_id.json"
+        json: ${{ secrets.DOCUMENT_ID }}
+        dir: '$ETL_FOLDER/configs/'
+          
     - name: Build image
       run: |
          cd $ETL_FOLDER
