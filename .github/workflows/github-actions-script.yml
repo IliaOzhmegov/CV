@@ -11,7 +11,7 @@ env:
   TEX_FOLDER: my-awesome-cv
 
 jobs:
-  Build-Python-Docker-image:
+  Get-Docker-Images-and-Compile:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -20,19 +20,11 @@ jobs:
          cd $ETL_FOLDER
          docker build -t gdocs .
       shell: bash
-
-  Build-Tex-Docker-image:
-    runs-on: ubuntu-latest
-    steps:
     - uses: actions/checkout@v2
     - name: Pull Image
       run: |
         docker pull thomasweise/docker-texlive-thin
       shell: bash
-
-  Download-and-Complie:
-    needs: [Build-Python-Docker-image, Build-Tex-Docker-image]
-    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - name: Print echo
