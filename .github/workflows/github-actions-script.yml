@@ -17,29 +17,30 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-#    - name: Build image
-#      run: |
-#         cd $ETL_FOLDER
-#         docker build -t gdocs .
-#         cd ..
-#      shell: bash
-#
-#    - name: Pull Image
-#      run: |
-#        docker pull thomasweise/docker-texlive-thin
-#      shell: bash
-#
-#    - name: Print echo
-#      run: |
-#        docker images
-#      shell: bash
-
-    - name: Write Config files
+    - name: Update Config files
       run: |
         cd $ETL_FOLDER
         mkdir -p configs
         echo "${{ secrets.CREDENTIALS }}" > configs/credentials.json
         echo "${{ secrets.DOCUMENT_ID }}" > configs/document_id.json
+        cd ..
+      shell: bash
+
+    - name: Build image
+      run: |
+         cd $ETL_FOLDER
+         docker build -t gdocs .
+         cd ..
+      shell: bash
+
+    - name: Pull Image
+      run: |
+        docker pull thomasweise/docker-texlive-thin
+      shell: bash
+
+    - name: Print echo
+      run: |
+        docker images
       shell: bash
 
     - name: Download Google Docs Document
