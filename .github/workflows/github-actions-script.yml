@@ -45,6 +45,6 @@ jobs:
 
     - name: Download Google Docs Document
       run: |
-        docker run --name etl_python --rm -i -t -w "/app" -v "$PWD":/app gdocs python3 $ETL_FOLDER/main.py
+        docker run --name etl_python --rm -i -w "/app" -v "$PWD":/app gdocs python3 $ETL_FOLDER/main.py
       shell: bash
 
