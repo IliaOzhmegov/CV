@@ -36,6 +36,9 @@ jobs:
 
     - name: Write Config files
       run: |
+        pwd
+        echo "--------------------------------------------------------"
+        tree
         cd $ETL_FOLDER
         mkdir configs
         echo "${{ secrets.CREDENTIALS }}" >> configs/credentials.json
