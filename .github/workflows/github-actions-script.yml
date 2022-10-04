@@ -36,13 +36,10 @@ jobs:
 
     - name: Write Config files
       run: |
-        pwd
-        echo "--------------------------------------------------------"
-        tree
         cd $ETL_FOLDER
-        mkdir configs
-        echo "${{ secrets.CREDENTIALS }}" >> configs/credentials.json
-        echo "${{ secrets.DOCUMENT_ID }}" >> configs/document_id.json
+        mkdir -p configs
+        echo "${{ secrets.CREDENTIALS }}" > configs/credentials.json
+        echo "${{ secrets.DOCUMENT_ID }}" > configs/document_id.json
       shell: bash
 
     - name: Download Google Docs Document
