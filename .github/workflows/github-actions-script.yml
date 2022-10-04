@@ -6,13 +6,37 @@ on:
     branches:
       - master
 
+env:
+  ETL_FOLDER: download-and-convert-gdocs
+  TEX_FOLDER: my-awesome-cv
+
 jobs:
-  Explore-GitHub-Actions:
+  Build-Python-Docker-image:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Run script file
+    - name: Build image
       run: |
-         chmod +x ./main.sh
-         ./main.sh
+         cd $ETL_FOLDER
+         docker build -t gdocs .
       shell: bash
+
+  Build-Tex-Docker-image:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Pull Image
+      run: |
+        docker pull thomasweise/docker-texlive-thin
+      shell: bash
+
+  Download-and-Complie:
+    needs: [Build-Python-Docker-image, Build-Tex-Docker-image]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Print echo
+      run: |
+        docker images
+      shell: bash
+
