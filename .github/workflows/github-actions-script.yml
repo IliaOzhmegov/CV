@@ -55,10 +55,10 @@ jobs:
         docker run --name etl_python --rm -i -w "/app" -v "$PWD":/app gdocs python3 $ETL_FOLDER/main.py
       shell: bash
 
-    - name: Complie Tex Document
+    - name: Complie XeLaTex Document
       run: |
         cd $TEX_FOLDER
         docker run --rm --user $(id -u):$(id -g) -i -w "/doc" -v "$PWD":/doc thomasweise/docker-texlive-thin make
-        cat cv/section/experience.tex
+        cat cv/sections/experience.tex
       shell: bash
 
