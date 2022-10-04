@@ -45,7 +45,7 @@ class Parser:
         # if paragraph is a link, it extracts it and makes it in LaTeX format
         if 'textStyle' in text_run and 'link' in text_run['textStyle']:
             url_link = text_run.get('textStyle').get('link').get('url')
-            return r'\href{' + url_link + '}{' + content + '}'
+            return r'\myhref{' + url_link + '}{' + content + '}'
         return content
 
     def __parse_experience(self, value):

@@ -88,6 +88,9 @@
   pdfauthor={},
   pdfsubject={},
   pdfkeywords={}
+%  allbordercolors=black,
+%  pdfborderstyle={/S/U/W 0.01},
+%  pdfborder={0 0 1}
 }
 % Solves issues Warning: File `cv.out' has changed
 \RequirePackage{bookmark}
@@ -234,6 +237,9 @@
 \newcommand*{\lettertextstyle}{\fontsize{10pt}{1.4em}\bodyfontlight\upshape\color{graytext}}
 \newcommand*{\letternamestyle}[1]{{\fontsize{10pt}{1em}\bodyfont\bfseries\color{darktext} #1}}
 \newcommand*{\letterenclosurestyle}[1]{{\fontsize{10pt}{1em}\bodyfontlight\slshape\color{lighttext} #1}}
+
+% For hyperlinks
+\newcommand*{\myhref}[2]{\href{#1}{\underline{#2}}}
 
 
 %-------------------------------------------------------------------------------
