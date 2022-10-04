@@ -1,6 +1,7 @@
 import os
 import dill
 import json
+import glob
 import errno
 
 from googleapiclient.discovery import build
@@ -12,8 +13,10 @@ class Getter:
     SCOPES = ['https://www.googleapis.com/auth/documents.readonly']
 
     def __init__(self,
-                 credentials_filepath: str = 'configs/credentials.json',
-                 doc_id_filepath: str = 'configs/document_id.json'):
+                 credentials_filepath: str = glob.glob('**/credentials.json', recursive=True)[0],
+                 doc_id_filepath: str = glob.glob('**/document_id.json', recursive=True)[0]):
+
+
         if not os.path.isfile(doc_id_filepath):
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), doc_id_filepath)
 
