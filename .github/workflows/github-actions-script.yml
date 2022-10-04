@@ -25,7 +25,6 @@ jobs:
       run: |
         docker pull thomasweise/docker-texlive-thin
       shell: bash
-    steps:
     - uses: actions/checkout@v2
     - name: Print echo
       run: |
