@@ -59,6 +59,12 @@ jobs:
       run: |
         cd $TEX_FOLDER
         docker run --rm --user $(id -u):$(id -g) -i -w "/doc" -v "$PWD":/doc thomasweise/docker-texlive-thin make
-        cat cv/sections/experience.tex
+        cd ..
       shell: bash
+
+    - name: Archive code cv.pdf
+      uses: actions/upload-artifact@v3
+      with:
+        name: code-coverage-report
+        path: $TEX_FOLDER/cv/cv.pdf
 
