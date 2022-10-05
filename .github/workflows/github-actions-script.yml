@@ -60,6 +60,6 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: zipped_cv
-        path: ${{ env.TEX_FOLDER }}cv/cv.pdf
+        path: ${{ env.TEX_FOLDER }}/cv/cv.pdf
         retention-days: 1
 
