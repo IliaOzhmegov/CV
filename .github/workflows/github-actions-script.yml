@@ -45,11 +45,6 @@ jobs:
         docker pull thomasweise/docker-texlive-thin
       shell: bash
 
-    - name: Print echo
-      run: |
-        docker images
-      shell: bash
-
     - name: Download Google Docs Document
       run: |
         docker run --name etl_python --rm -i -w "/app" -v "$PWD":/app gdocs python3 $ETL_FOLDER/main.py
@@ -60,11 +55,12 @@ jobs:
         cd $TEX_FOLDER
         docker run --rm --user $(id -u):$(id -g) -i -w "/doc" -v "$PWD":/doc thomasweise/docker-texlive-thin make
         cd ..
+        tree
       shell: bash
 
     - name: Archive code cv.pdf
       uses: actions/upload-artifact@v3
       with:
         name: code-coverage-report
-        path: $TEX_FOLDER/cv/cv.pdf
+        path: my-awesome-cv/cv/cv.pdf
 
