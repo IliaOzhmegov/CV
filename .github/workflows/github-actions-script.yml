@@ -54,13 +54,11 @@ jobs:
       run: |
         cd $TEX_FOLDER
         docker run --rm --user $(id -u):$(id -g) -i -w "/doc" -v "$PWD":/doc thomasweise/docker-texlive-thin make
-        cd ..
-        tree
       shell: bash
 
     - name: Archive code cv.pdf
       uses: actions/upload-artifact@v3
       with:
-        name: code-coverage-report
-        path: my-awesome-cv/cv/cv.pdf
+        name: zipped_cv
+        path: cv/cv.pdf
 
