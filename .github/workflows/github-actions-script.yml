@@ -19,7 +19,7 @@ jobs:
 
     - name: Update CREDENTIALS Config file
       id: create-json-1
-      uses: jsdaniell/create-json@1.2.1
+      uses: jsdaniell/create-json@v1.2.1
       with:
         name: "credentials.json"
         json: ${{ secrets.CREDENTIALS }}
@@ -27,7 +27,7 @@ jobs:
 
     - name: Update DOCUMENT_ID Config file
       id: create-json-2 
-      uses: jsdaniell/create-json@1.2.1
+      uses: jsdaniell/create-json@v1.2.1
       with:
         name: "document_id.json"
         json: ${{ secrets.DOCUMENT_ID }}
