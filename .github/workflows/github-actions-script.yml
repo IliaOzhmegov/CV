@@ -2,11 +2,11 @@ name: Download Data and Render pdf file
 on:
   repository_dispatch:
     types: render-cv
-      inputs:
-        gDocsID:
-          description: 'Google Docs File ID'     
-          required: true
-          default: ${{ secrets.DOCUMENT_ID }}
+    inputs:
+      gDocsID:
+        description: 'Google Docs File ID'     
+        required: true
+        default: ${{ secrets.DOCUMENT_ID }}
   push:
     branches:
       - master
@@ -21,6 +21,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+
+    - name: Output Inputs
+      run: echo "${{ toJSON(github.event.inputs) }}"
 
     - name: Update CREDENTIALS Config file
       id: create-json-1
