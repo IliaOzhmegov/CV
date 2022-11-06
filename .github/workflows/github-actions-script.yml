@@ -8,7 +8,7 @@ on:
         required: true
         default: 'secrets.DOCUMENT_ID'
         env:
-          DOCUMENT_ID: github.event.inputs.documentId
+          DOCUMENT_ID: ${{secrets[github.event.inputs.documentId]}}
   push:
     branches:
       - master
