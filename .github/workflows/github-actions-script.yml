@@ -7,19 +7,14 @@ on:
         description: 'Google Docs File ID'     
         required: true
         default: 'secrets.DOCUMENT_ID'
-        env:
-          DOCUMENT_ID: ${{secrets[github.event.inputs.documentId]}}
   push:
     branches:
       - master
-    env:
-      DOCUMENT_ID: ${{ secrets.CREDENTIALS }}
 
 env:
   USE_CACHE: true
   ETL_FOLDER: download-and-convert-gdocs
   TEX_FOLDER: my-awesome-cv
-  CREDENTIALS: ${{ secrets.CREDENTIALS }}
 
 jobs:
   Get-Docker-Images-and-Compile:
@@ -35,7 +30,7 @@ jobs:
       uses: jsdaniell/create-json@v1.2.1
       with:
         name: "credentials.json"
-        json: ${{ env.CREDENTIALS }}
+        json: ${{ secrets.CREDENTIALS }}
         dir: '${{ env.ETL_FOLDER }}/configs/'
 
     - name: Update DOCUMENT_ID Config file
@@ -43,7 +38,7 @@ jobs:
       uses: jsdaniell/create-json@v1.2.1
       with:
         name: "document_id.json"
-        json: ${{ env.DOCUMENT_ID }}
+        json: ${{ secrets.DOCUMENT_ID }}
         dir: '${{ env.ETL_FOLDER }}/configs/'
           
     - name: Build image
