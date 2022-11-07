@@ -2,11 +2,7 @@ name: Download Data and Render pdf file
 on:
   repository_dispatch:
     types: render-cv
-    inputs:
-      gDocsID:
-        description: 'Google Docs File ID'     
-        required: true
-        default: 'secrets.DOCUMENT_ID'
+
   push:
     branches:
       - master
