@@ -38,8 +38,8 @@ jobs:
         dir: '${{ env.ETL_FOLDER }}/configs/'
 
 
-    - name: Update DOCUMENT_ID Config file (2)
-      id: create-json-2 
+    - name: Update DOCUMENT_ID Config file from payload
+      id: create-json-2-payload
       if: ${{ github.event.client_payload }}
       uses: jsdaniell/create-json@v1.2.1
       with:
