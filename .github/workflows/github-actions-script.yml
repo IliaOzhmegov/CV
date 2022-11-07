@@ -44,7 +44,7 @@ jobs:
       uses: jsdaniell/create-json@v1.2.1
       with:
         name: "document_id.json"
-        json: ${{ github.event.client_payload }}
+        json: ${{ toJSON(github.event.client_payload) }}
         dir: '${{ env.ETL_FOLDER }}/configs/'
           
     - name: Build image
