@@ -19,7 +19,7 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Output Inputs
-      run: echo "${{ github.event.client_payload }}"
+      run: echo "${{ toJSON(github.event.client_payload) }}"
 
     - name: Update CREDENTIALS Config file
       id: create-json-1
@@ -35,6 +35,16 @@ jobs:
       with:
         name: "document_id.json"
         json: ${{ secrets.DOCUMENT_ID }}
+        dir: '${{ env.ETL_FOLDER }}/configs/'
+
+
+    - name: Update DOCUMENT_ID Config file (2)
+      id: create-json-2 
+      if: ${{ github.event.client_payload }}
+      uses: jsdaniell/create-json@v1.2.1
+      with:
+        name: "document_id.json"
+        json: ${{ github.event.client_payload }}
         dir: '${{ env.ETL_FOLDER }}/configs/'
           
     - name: Build image
