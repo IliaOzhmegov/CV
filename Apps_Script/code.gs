@@ -1,3 +1,10 @@
+// Initial Data
+GH_REPO_URL = "https://api.github.com/repos/iliaozhmegov/CV";
+GH_TOKEN    = PropertiesService.getScriptProperties().getProperty("github_token"); // github_token in script properties
+GH_PURGE    = true;
+GD_DOC_ID   = DocumentApp.getActiveDocument().getId();
+GD_FOLDER   = "1aba-tnQZxZMN7DN52eAywTU-Xs-eqOf4";
+GD_FILENAME = "ILIA_OZHMEGOV_CV.pdf";
 
 function onOpen() {
   const ui = DocumentApp.getUi();
@@ -22,6 +29,8 @@ function render() {
 
   w.show_download(gh.download_file());
 
+  if (GH_PURGE){gh.remove_latest_artifact_id();}
+
 }
 
 function download_latest(){
@@ -32,12 +41,10 @@ function download_latest(){
 }
 
 class Github {
-  constructor(repo_url="https://api.github.com/repos/iliaozhmegov/ILIA_OZHMEGOV_CV", 
-              folder="1aba-tnQZxZMN7DN52eAywTU-Xs-eqOf4",
-              filename="ILIA_OZHMEGOV_CV.pdf"){
-    var scriptProperties = PropertiesService.getScriptProperties();
-    var token            = scriptProperties.getProperty("github_token");
-
+  constructor(repo_url=GH_REPO_URL, 
+              token=GH_TOKEN,
+              folder=GD_FOLDER,
+              filename=GD_FILENAME){
     this.token              = token;
     this.repo_url           = repo_url;
     this.latest_artifact_id = this.get_latest_artifact_id();
@@ -61,7 +68,7 @@ class Github {
       "validateHttpsCertificates": true,
 
       "contentType": "application/json",
-      "payload":     JSON.stringify({"event_type":"render-cv"})
+      "payload":     JSON.stringify({"event_type":"render-cv", "client_payload": {"id": GD_DOC_ID}})
 	  });
 
 	  Logger.log("Response code is %s", response.getResponseCode());
@@ -125,26 +132,53 @@ class Github {
   wait_rendering(){
     const limit = 30; // seconds
     let i = 0;
-    while((this.latest_artifact_id == this.get_latest_artifact_id()) & (i < limit)){
+    let new_latest_artifact_id = this.get_latest_artifact_id();
+    while((this.latest_artifact_id == new_latest_artifact_id) & (i < limit)){
       Utilities.sleep(1000);
       i++;
+      new_latest_artifact_id = this.get_latest_artifact_id();
     }
 
+    this.latest_artifact_id = new_latest_artifact_id;
     return i == limit;
   }
 
+  remove_latest_artifact_id(){
+    const url = this.repo_url + "/actions/artifacts/" + this.latest_artifact_id;
+    const response = UrlFetchApp.fetch(url, {
+      "method": "DELETE",
+      "headers": {
+        "Accept":        "application/vnd.github+json",
+        "Authorization": "Bearer " + this.token
+      },
+
+      // "muteHttpExceptions":        true,
+      // "followRedirects":           true,
+      "validateHttpsCertificates": true,
+    });
+
+  };
 }
 
 class Window {
-  constructor(){
+  constructor(gh_repo_url=GH_REPO_URL){
     this.width  = 500;
     this.height = 370;
 
     this.render_time = 60; // seconds
+
+    var countdown_url = gh_repo_url.replace("api.github.com/repos", "raw.githubusercontent.com") + "/master/Apps_Script/countdown.html";
+    var wait_url      = gh_repo_url.replace("api.github.com/repos", "raw.githubusercontent.com") + "/master/Apps_Script/wait.html";
+    var download_url  = gh_repo_url.replace("api.github.com/repos", "raw.githubusercontent.com") + "/master/Apps_Script/download.html";
+
+    this.countdown_html = UrlFetchApp.fetch(countdown_url).getContentText();
+    this.wait_html      = UrlFetchApp.fetch(wait_url).     getContentText();
+    this.download_html  = UrlFetchApp.fetch(download_url). getContentText();
+
   }
 
   show_countdown(){
-    var html = HtmlService.createHtmlOutputFromFile('countdown')
+    var html = HtmlService.createHtmlOutput(this.countdown_html)
       .setWidth (this.width)
       .setHeight(this.height);
     DocumentApp.getUi()
@@ -158,7 +192,7 @@ class Window {
   }
 
   show_wait(){
-    var html = HtmlService.createHtmlOutputFromFile('wait')
+    var html = HtmlService.createHtmlOutput(this.wait_html)
       .setWidth (this.width)
       .setHeight(this.height);
 
@@ -167,7 +201,7 @@ class Window {
   }
 
   show_download(url){
-    const template = HtmlService.createTemplateFromFile("download");
+    const template = HtmlService.createTemplate(this.download_html);
     template.downloadUrl = url;
     const htmlOutput = template.evaluate()
       .setWidth (this.width)
