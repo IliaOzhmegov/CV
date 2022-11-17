@@ -57,8 +57,8 @@ class Getter:
 
 def main():
     g = Getter()
-    doc_content = g.download_and_get()
-    # doc_content = g.download_and_get(saveto='data_jar/getter_output')
+    # doc_content = g.download_and_get()
+    doc_content = g.download_and_get(saveto='data_jar/getter_output')
     print(doc_content)
 
 

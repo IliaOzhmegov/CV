@@ -1,29 +1,23 @@
 from math import ceil
 from typing import List, Dict
-from collections import namedtuple
-
+from collections import OrderedDict
 
 class Parser:
 
     def __init__(self, raw_input):
         self.__raw_input = raw_input
-        self.__parse_section_as = {'EXPERIENCE': self.__parse_experience,
-                                   'EDUCATION': self.__parse_education,
-                                   'WRITINGS': self.__parse_writings,
-                                   'SKILLS': self.__parse_skills}
 
     def parse(self) -> Dict:
         elements = self.__raw_input
 
         i = 0
-        structured_text = {}
+        structured_text = OrderedDict()
         while i + 1 < len(elements):
             if 'paragraph' in elements[i] and 'table' in elements[i+1]:
-                section_name = self.__parse_section(elements[i])
-                f = self.__parse_section_as[section_name]
-                i += 1
-                table_content = f(elements[i])
+                section_name  = self.__parse_section(elements[i])
+                table_content = self.__parse_unit   (elements[i+1])
                 structured_text[section_name] = table_content
+                i += 1
             i += 1
 
         print('Successfully Parsed!')
@@ -48,37 +42,24 @@ class Parser:
             return r'\myhref{' + url_link + '}{' + content + '}'
         return content
 
-    def __parse_experience(self, value):
-        return self.__parse_unit(value, ['Organization', 'Location', 'Position', 'Dates', 'Description'])
-
-    def __parse_education(self, value):
-        return self.__parse_unit(value, ['University', 'Location', 'Degree', 'Dates', 'Description'])
-
-    def __parse_writings(self, value):
-        return self.__parse_unit(value, ['Journal', 'Location', 'Title', 'Dates'])
-
-    def __parse_skills(self, value):
-        return self.__parse_unit(value, ['Category', 'Skills'])
-
-    def __parse_unit(self, value, names: List[str]) -> List[Dict]:
-        step = ceil(len(names)/2)
-        named_tuple = namedtuple('named_tuple', names)
-
-        list_of_items = []
+    def __parse_unit(self, value) -> List[List]:
+        table = []
         rows = value.get('table').get('tableRows')
-        for i in range(0, len(rows), step):
-            attributes = []
-            for j in range(i, i+step):
-                cells = [self.__parse_paragraphs(cell.get('content')) for cell in rows[j].get('tableCells')]
-                while '' in cells:
-                    cells.remove('')
+        for row in rows:
+            row_ = []
+            for cell in row.get('tableCells'):
+                cell_ = self.__parse_paragraphs(cell.get('content'))
+                while isinstance(cell_, list) and '' in cell_:
+                    cell_.remove('')
 
-                attributes.extend(cells)
+                if isinstance(cell_, list) and len(cell_) == 1:
+                    row_.append(cell_[0])
+                elif len(cell_):
+                    row_.append(cell_)
 
-            tmp_tuple = named_tuple._make(attributes)
-            list_of_items.append(tmp_tuple._asdict())
+            table.append(row_)
 
-        return list_of_items
+        return table
 
     def __parse_paragraphs(self, elements):
         paragraphs = []
@@ -93,7 +74,7 @@ class Parser:
             if 'href' in paragraphs[i]:
                 # to avoid segmentation fault
                 i_before = max(i-1, 0)
-                i_after = min(i+1, len(paragraphs)-1)
+                i_after  = min(i+1, len(paragraphs)-1)
 
                 i_min = min(i_before, i)
                 i_max = max(i, i_after)
@@ -106,17 +87,17 @@ class Parser:
 
 
 def main():
-    import dill
+    import dill, json
 
-    with open('../data_jar/doc_content.pkl', 'rb') as inp:
+    with open('data_jar/getter_output.pkl', 'rb') as inp:
         doc_content = dill.load(inp)
 
     p = Parser(doc_content)
     structured_text = p.parse()
     # print(json.dumps(structured_text, indent=4))
-    # with open("data_output/document.json", 'w') as f:
+    with open("data_output/document.json", 'w') as f:
         # f.write(json.dumps(structured_text, indent=4).replace('\\\\', '\\'))
-        # f.write(json.dumps(structured_text, indent=4))
+        f.write(json.dumps(structured_text, indent=4))
 
 
 if __name__ == '__main__':

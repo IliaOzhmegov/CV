@@ -1,7 +1,11 @@
 import json
+import glob
+import re
 
-from typing import Dict
+from typing import Dict, List
 from pathlib import Path
+
+LIMIT = 113  # dictated by LaTeX
 
 
 class Converter:
@@ -10,13 +14,13 @@ class Converter:
     INDENT = 2
 
     def __init__(self, content: Dict):
-        self.__content = content.copy()
-        self.__path = ''
+        self.__content = self.__group_n_label(content)
+        self.__output = ['']
 
     def __str__(self) -> str:
         return json.dumps(self.__content, indent=4)
 
-    def _generate_header(self, name: str, environment: str = 'cventries') -> str:
+    def _generate_header(self, name: str, environment: str) -> str:
         output = self.LONG_DIVIDER
         output += '%\t' + name + '\n'
         output += self.LONG_DIVIDER
@@ -31,95 +35,99 @@ class Converter:
         return output
 
     @staticmethod
-    def _generate_footer(environment: str = 'cventries') -> str:
+    def _generate_footer(environment: str) -> str:
         return fr'\end{{{environment}}}' + '\n'
 
-    def convert_and_save(self, path='cv') -> None:
-        self.__path = path
-        Path(self.__path).mkdir(exist_ok=True)
+    def convert_and_save(self, filepath='cv.tex') -> None:
+        if '/' in filepath:
+            Path(filepath[:filepath.rfind('/')]).mkdir(exist_ok=True)
 
-        self._generate_exp_page()
-        self._generate_edu_page()
-        self._generate_wri_page()
-        self._generate_ski_page()
+        for section, content in self.__content.items():
+            self._generate_page(section, content)
 
-        print(f"Successfully Converted and save at {self.__path}")
+        with open(filepath, 'w') as f:
+            f.write(self.__output[0])
 
-    def _generate_ski_page(self):
-        name = 'SKILLS'
-        env = 'cvskills'
-        rows = self.__content[name]
-        columns = list(rows[0].keys())
+        print(f"Successfully Converted and saved as {filepath}")
 
-        output = self._generate_header(name=name, environment=env)
+    def _generate_page(self, name: str, content) -> None:
+        environment = 'cvskills' if re.match('.*skill.*', name.lower()) else 'cventries'
 
-        for row in rows:
+        output = self.__output
+        output[0] += self._generate_header(name.upper(), environment)
+
+        for row in content:
             indent = self.INDENT
-            output += ' '*indent + r'\cvskill' + '\n'
+            output[0] += ' ' * indent + '\\' + row[0] + '\n'
             indent += self.INDENT
-            for column in columns:
-                content = ', '.join(row[column]) if isinstance(row[column], type(list())) else row[column]
-                output += ' ' * indent + f'{{{content}}}\n'
+            for column in row[1:]:
+                if isinstance(column, str):
+                    output[0] += ' ' * indent + f'{{{column}}}\n'
+                elif isinstance(column, list):
+                    output[0] += ' ' * indent + '{\n'
+                    indent += self.INDENT
+                    output[0] += ' ' * indent + r'\begin{cvitems}' + '\n'
+                    indent += self.INDENT
+                    for responsibility in column:
+                        responsibility = responsibility.replace("%", "\%")
+                        output[0] += ' ' * indent + f'\item{{{responsibility}}}\n'
+                    indent -= self.INDENT
+                    output[0] += ' ' * indent + r'\end{cvitems}' + '\n'
+                    indent -= self.INDENT
+                    output[0] += ' ' * indent + '}\n'
 
-            output += '\n' + self.SHORT_DIVIDER
+            output[0] += '\n' + self.SHORT_DIVIDER
 
-        output += self._generate_footer(environment=env)
+        output[0] += self._generate_footer(environment)
 
-        with open(self.__path + '/' + name.lower() + '.tex', 'w') as f:
-            f.write(output)
 
-    def _generate_exp_page(self):
-        self._generate_page(name='experience')
+    @staticmethod
+    def __group_n_label(structured_text):
+        def purified_len(line):
+            if re.match('myhref', line):
+                m = re.search("myhref{.*}{", line)
+                return len(re.sub(r'[^\w\s]', '', line[:m.start()] + line[m.end()]))
+            else:
+                return len(line)
 
-    def _generate_edu_page(self):
-        self._generate_page(name='education')
+        # group
+        group = {2: {2: {2: '#', 1: {2: '#'}}}}
 
-    def _generate_wri_page(self):
-        self._generate_page(name='writings')
+        grouped_data = {}
+        for key in structured_text:
+            rows = structured_text[key]
+            middle_term_format = [[]]
 
-    def _generate_page(self, name: str) -> None:
-        name = name.upper()
-        rows = self.__content[name]
-        # Since Python3.7 when you use json.load it preserves the order for dictionary
-        columns = list(rows[0].keys())
+            branch = group
+            for i in range(len(rows)):
+                branch = branch[len(rows[i])]
+                if isinstance(branch, str):
+                    middle_term_format.append([])
+                    branch = group[2]
+                elif re.match('.*skill.*', key.lower()) and len(middle_term_format[-1]):
+                    middle_term_format.append([])
+                middle_term_format[-1].extend(rows[i])
+            grouped_data[key] = middle_term_format
 
-        itemize_description_on = False
-        cventry_type = r'\cventryshort'
-        if 'Description' in columns and isinstance(rows[0]['Description'], type(list())):
-            columns = columns[:-1]
-            itemize_description_on = True
-            cventry_type = r'\cventry'
+        # label
+        def f5(elements: List):
+            if isinstance(elements[-1], str) and purified_len(elements[-3] + elements[-1]) < LIMIT:
+                elements.insert(0, 'cventryshort')
+            else:
+                elements.insert(0, 'cventry')
 
-        output = self._generate_header(name)
+        def f4(elements: List):
+            elements.insert(0, 'cventryshort')
 
-        for row in rows:
-            indent = self.INDENT
-            output += ' ' * indent + cventry_type + '\n'
-            indent += self.INDENT
-            for column in columns:
-                field_content = ''.join(row[column]) if isinstance(row[column], type(list())) else row[column]
-                output += ' ' * indent + f'{{{field_content}}}\n'
+        def f2(elements: List):
+            elements.insert(0, 'cvskill')
 
-            # That's for long itemized description
-            if itemize_description_on:
-                output += ' ' * indent + '{\n'
-                indent += self.INDENT
-                output += ' ' * indent + r'\begin{cvitems}' + '\n'
-                indent += self.INDENT
-                for responsibility in row["Description"]:
-                    responsibility = responsibility.replace("%", "\%")
-                    output += ' ' * indent + f'\item{{{responsibility}}}\n'
-                indent -= self.INDENT
-                output += ' ' * indent + r'\end{cvitems}' + '\n'
-                indent -= self.INDENT
-                output += ' ' * indent + '}\n'
+        label = {5: f5, 4: f4, 2: f2}
+        for key, array in grouped_data.items():
+            for i in range(len(array)):
+                label[len(array[i])](array[i])
 
-            output += '\n' + self.SHORT_DIVIDER
-
-        output += self._generate_footer()
-
-        with open(self.__path + '/' + name.lower() + '.tex', 'w') as f:
-            f.write(output)
+        return grouped_data
 
 
 if __name__ == '__main__':

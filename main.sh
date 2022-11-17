@@ -11,7 +11,7 @@ cd ..
 
 
 # 1. Download and convert Google Doc File into a *tex files with the built docker image
-docker run --name etl_python --rm -i -t -w "/app" -v "$PWD":/app gdocs python3 $ETL_FOLDER/main.py
+docker run --name etl_python --rm -i -w "/app" -v "$PWD":/app gdocs python3 $ETL_FOLDER/main.py
 
 
 # 2. Render pdf
