@@ -56,8 +56,8 @@ jobs:
         echo ${{ env.PD_FOLDER }} 
         pwd
         ls ${{ env.PD_FOLDER }}
-        echo ${{ env.mobile }} 
-        echo ${{ env.mobile }} > ${{ env.PD_FOLDER }}/mobile.tex
+        echo "${{ env.mobile }}"
+        echo "${{ env.mobile }}" > ${{ env.PD_FOLDER }}/mobile.tex
         cat ${{ env.PD_FOLDER }}/mobile.tex
       shell: bash
           
