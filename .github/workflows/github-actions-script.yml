@@ -49,9 +49,11 @@ jobs:
         dir: '${{ env.ETL_FOLDER }}/configs/'
 
     - name: Check if MOBILE set and replace it
-      if: ${{ secrets.MOBILE }}
+      env: 
+        mobile: ${{ secrets.MOBILE }}
+      if: ${{ env.mobile == '' }}
       run: |
-        echo ${{ secrets.MOBILE }} > ${{ env.PD_FOLDER }}/mobile.tex
+        echo ${{ env.mobile }} > ${{ env.PD_FOLDER }}/mobile.tex
       shell: bash
           
     - name: Build image
